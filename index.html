@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mike McC</title>
-    <!-- Google Font: Playfair Display (elegant serif) -->
+    <!-- Changed to a thin, elegant font: Montserrat with light weight + fallback to system sans-serif -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -18,19 +18,22 @@
         body {
             height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0f172a; /* Dark base for depth */
+            background: #0f172a;
             overflow: hidden;
-            font-family: 'Playfair Display', serif;
-            color: white;
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            padding: 40px;
+            gap: 40px;
         }
 
         .background {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             overflow: hidden;
-            z-index: -1;
+            z-index: -2;
+            pointer-events: none;
         }
 
         .blob {
@@ -40,24 +43,36 @@
             opacity: 0.7;
             mix-blend-mode: screen;
             animation: float linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
-        /* Faster, more visible cloud-like movement */
+        .particle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.8), 0 0 40px 12px currentColor;
+            animation: drift ease-in-out infinite, pulse 4s ease-in-out infinite;
+        }
+
         @keyframes float {
             0% {
                 transform: translate(0, 0) scale(1);
             }
 
             25% {
-                transform: translate(100px, -60px) scale(1.15);
+                transform: translate(120px, -80px) scale(1.2);
             }
 
             50% {
-                transform: translate(-80px, 80px) scale(0.95);
+                transform: translate(-100px, 100px) scale(0.9);
             }
 
             75% {
-                transform: translate(60px, 100px) scale(1.1);
+                transform: translate(80px, 120px) scale(1.15);
             }
 
             100% {
@@ -65,58 +80,400 @@
             }
         }
 
+        @keyframes drift {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(var(--dx), var(--dy));
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         .blob:nth-child(1) {
-            width: 600px;
-            height: 600px;
+            width: 1000px;
+            height: 1000px;
             background: radial-gradient(circle, #ff6b6b, transparent);
-            top: -20%;
-            left: -10%;
-            animation-duration: 12s;
-            animation-delay: 0s;
+            top: -30%;
+            left: -20%;
+            animation-duration: 9s;
+            color: #ff6b6b;
         }
 
         .blob:nth-child(2) {
-            width: 800px;
-            height: 800px;
+            width: 1200px;
+            height: 1200px;
             background: radial-gradient(circle, #4ecdc4, transparent);
-            bottom: -30%;
-            right: -20%;
-            animation-duration: 15s;
-            animation-delay: 3s;
+            bottom: -40%;
+            right: -25%;
+            animation-duration: 11s;
+            animation-delay: 1s;
+            color: #4ecdc4;
         }
 
         .blob:nth-child(3) {
-            width: 500px;
-            height: 500px;
+            width: 900px;
+            height: 900px;
             background: radial-gradient(circle, #ffe66d, transparent);
-            top: 40%;
+            top: 30%;
             left: 50%;
             transform: translateX(-50%);
-            animation-duration: 10s;
-            animation-delay: 6s;
+            animation-duration: 7s;
+            animation-delay: 2s;
+            color: #ffe66d;
         }
 
-        h1 {
-            font-size: 4.5rem;
-            text-align: center;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            z-index: 1;
+            min-width: 200px;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 3rem;
+            /* Much thinner and elegant font */
+            .left-panel h1 {
+                font-size: 2rem;
+                font-weight: 300; /* Thin weight */
+                color: white;
+                letter-spacing: 8px; /* Increased spacing for sophisticated look */
+                text-transform: uppercase;
+            }
+
+        .menu-button {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+            .menu-button:hover {
+                background: rgba(255, 255, 255, 0.25);
+            }
+
+        .animation-container {
+            flex: 1;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .animation-box {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            position: relative;
+        }
+
+        #animation-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .left-panel {
+                align-items: center;
+                margin-bottom: 30px;
+            }
+
+            .animation-container {
+                height: 60vh;
             }
         }
     </style>
 </head>
 <body>
     <div class="background">
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
+        <!-- blobs and particles unchanged -->
+        <div class="blob">
+            <div class="particle" style="top: 20%; left: 30%; --dx: 40px; --dy: -50px; animation-duration: 8s;"></div>
+            <div class="particle" style="top: 50%; left: 70%; --dx: -60px; --dy: 30px; animation-duration: 9s; animation-delay: 1s;"></div>
+            <div class="particle" style="top: 70%; left: 20%; --dx: 50px; --dy: -40px; animation-duration: 7s; animation-delay: 2s;"></div>
+            <div class="particle" style="top: 30%; left: 50%; --dx: -40px; --dy: 60px; animation-duration: 10s;"></div>
+            <div class="particle" style="top: 80%; left: 60%; --dx: 30px; --dy: -30px; animation-duration: 8s;"></div>
+        </div>
+
+        <div class="blob">
+            <div class="particle" style="top: 30%; left: 40%; --dx: 60px; --dy: -40px; animation-duration: 10s;"></div>
+            <div class="particle" style="top: 60%; left: 80%; --dx: -50px; --dy: 50px; animation-duration: 11s;"></div>
+            <div class="particle" style="top: 20%; left: 60%; --dx: 40px; --dy: -60px; animation-duration: 9s;"></div>
+            <div class="particle" style="top: 70%; left: 30%; --dx: -70px; --dy: 30px; animation-duration: 12s;"></div>
+        </div>
+
+        <div class="blob">
+            <div class="particle" style="top: 25%; left: 50%; --dx: -40px; --dy: 50px; animation-duration: 7s;"></div>
+            <div class="particle" style="top: 55%; left: 30%; --dx: 60px; --dy: -30px; animation-duration: 8s;"></div>
+            <div class="particle" style="top: 75%; left: 70%; --dx: -50px; --dy: -40px; animation-duration: 6s;"></div>
+            <div class="particle" style="top: 35%; left: 60%; --dx: 40px; --dy: 60px; animation-duration: 7s;"></div>
+        </div>
     </div>
 
-    <h1>Mike McC</h1>
-    <!-- Change the text above to whatever you want displayed -->
+    <div class="left-panel">
+        <h1>MikeMcC</h1>
+        <button class="menu-button" onclick="addBall()">Add</button>
+        <button class="menu-button" onclick="explodeBall()">Explode</button>
+        <button class="menu-button" onclick="scrubBalls()">Scrub</button>
+    </div>
+
+    <div class="animation-container">
+        <div class="animation-box">
+            <canvas id="animation-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- JavaScript remains exactly the same (shockwaves, chain explosions, particles, physics) -->
+    <script>
+        // ... (all the previous JavaScript code unchanged - balls, explosions, shockwaves, etc.)
+        const canvas = document.getElementById('animation-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const balls = [];
+        const explosions = [];
+        const shockwaves = [];
+        const pendingExplosions = [];
+        const radius = 12;
+        const speed = 3.5;
+        const explosionRadius = 5 * 2 * radius;
+
+        class Ball {
+            constructor(x, y, vx, vy) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x - radius < 0 || this.x + radius > canvas.width) this.vx = -this.vx;
+                if (this.y - radius < 0 || this.y + radius > canvas.height) this.vy = -this.vy;
+            }
+        }
+
+        class ExplosionParticle {
+            constructor(x, y, vx, vy, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.life = 1;
+                this.decay = 0.015 + Math.random() * 0.01;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.life -= this.decay;
+            }
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15 * this.life;
+                ctx.shadowColor = this.color;
+                ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+            dead() { return this.life <= 0; }
+        }
+
+        class Shockwave {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.radius = 0;
+                this.maxRadius = explosionRadius + 20;
+                this.width = 8;
+                this.life = 1;
+            }
+            update() {
+                this.radius += 4;
+                this.life = 1 - (this.radius / this.maxRadius);
+            }
+            draw() {
+                ctx.globalAlpha = this.life * 0.6;
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = this.width * this.life;
+                ctx.shadowBlur = 20 * this.life;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+            dead() { return this.radius > this.maxRadius; }
+        }
+
+        function createExplosion(x, y, color) {
+            const particleCount = 35;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const force = 5 + Math.random() * 10;
+                const vx = Math.cos(angle) * force;
+                const vy = Math.sin(angle) * force;
+                explosions.push(new ExplosionParticle(x, y, vx, vy, color));
+            }
+            shockwaves.push(new Shockwave(x, y, color));
+        }
+
+        function triggerExplosion(ballIndex) {
+            const ball = balls[ballIndex];
+            createExplosion(ball.x, ball.y, ball.color);
+            balls.splice(ballIndex, 1);
+
+            for (let i = balls.length - 1; i >= 0; i--) {
+                const other = balls[i];
+                const dist = Math.hypot(other.x - ball.x, other.y - ball.y);
+                if (dist < explosionRadius) {
+                    const delay = (dist / explosionRadius) * 600 + 100;
+                    pendingExplosions.push({ ballIndex: i, delay });
+                }
+            }
+        }
+
+        function addBall() {
+            const angle = Math.random() * Math.PI * 2;
+            const vx = Math.cos(angle) * speed;
+            const vy = Math.sin(angle) * speed;
+            balls.push(new Ball(canvas.width / 2, canvas.height / 2, vx, vy));
+        }
+
+        function explodeBall() {
+            if (balls.length === 0) return;
+            const index = Math.floor(Math.random() * balls.length);
+            triggerExplosion(index);
+        }
+
+        function scrubBalls() {
+            balls.length = 0;
+            explosions.length = 0;
+            shockwaves.length = 0;
+            pendingExplosions.length = 0;
+        }
+
+        function handleCollisions() {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    const dx = balls[j].x - balls[i].x;
+                    const dy = balls[j].y - balls[i].y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 2 * radius) {
+                        const angle = Math.atan2(dy, dx);
+                        const sin = Math.sin(angle);
+                        const cos = Math.cos(angle);
+
+                        const vx1 = balls[i].vx * cos + balls[i].vy * sin;
+                        const vy1 = balls[i].vy * cos - balls[i].vx * sin;
+                        const vx2 = balls[j].vx * cos + balls[j].vy * sin;
+                        const vy2 = balls[j].vy * cos - balls[j].vx * sin;
+
+                        [balls[i].vx, balls[j].vx] = [vx2 * cos - vy1 * sin, vx1 * cos - vy2 * sin];
+                        [balls[i].vy, balls[j].vy] = [vy1 * cos + vx2 * sin, vy2 * cos + vx1 * sin];
+
+                        const overlap = 2 * radius - dist;
+                        const sepX = (dx / dist) * overlap / 2;
+                        const sepY = (dy / dist) * overlap / 2;
+                        balls[i].x -= sepX;
+                        balls[i].y -= sepY;
+                        balls[j].x += sepX;
+                        balls[j].y += sepY;
+                    }
+                }
+            }
+        }
+
+        let lastTime = performance.now();
+        function animate(time) {
+            const delta = time - lastTime;
+            lastTime = time;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = pendingExplosions.length - 1; i >= 0; i--) {
+                pendingExplosions[i].delay -= delta;
+                if (pendingExplosions[i].delay <= 0) {
+                    const idx = pendingExplosions[i].ballIndex;
+                    if (idx < balls.length) {
+                        triggerExplosion(idx);
+                    }
+                    pendingExplosions.splice(i, 1);
+                }
+            }
+
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                explosions[i].update();
+                explosions[i].draw();
+                if (explosions[i].dead()) explosions.splice(i, 1);
+            }
+
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                shockwaves[i].update();
+                shockwaves[i].draw();
+                if (shockwaves[i].dead()) shockwaves.splice(i, 1);
+            }
+
+            handleCollisions();
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+    </script>
 </body>
 </html>
