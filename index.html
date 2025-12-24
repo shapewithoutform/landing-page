@@ -67,6 +67,15 @@
             background: #000;
             flex-grow: 1;
         }
+
+        /* Mobile: canvas takes exactly 50% of remaining height after controls */
+        @media (max-width: 768px) {
+            .canvas-container {
+                flex-grow: 0;
+                height: calc(50vh - 40px); /* approximate half screen minus controls */
+                max-height: 50vh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -78,7 +87,9 @@
         <button id="explodeBtn" class="btn">!</button>
     </div>
 
-    <canvas id="joyCanvas"></canvas>
+    <div class="canvas-container">
+        <canvas id="joyCanvas"></canvas>
+    </div>
 
     <script>
         const canvas = document.getElementById("joyCanvas");
@@ -148,8 +159,17 @@
 
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
+            const controlsHeight = document.querySelector('.controls').offsetHeight;
+
             width = window.innerWidth;
-            height = window.innerHeight - document.querySelector('.controls').offsetHeight;
+            let availableHeight = window.innerHeight - controlsHeight;
+
+            // On mobile: limit canvas to half screen height
+            if (window.innerWidth <= 768) {
+                availableHeight = Math.min(availableHeight, window.innerHeight / 2);
+            }
+
+            height = availableHeight;
 
             canvas.width = width * dpr;
             canvas.height = height * dpr;
@@ -168,6 +188,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // Rest of your event listeners and functions remain unchanged
         toggleBtn.addEventListener("click", () => {
             mouseEnabled = !mouseEnabled;
             toggleBtn.style.opacity = mouseEnabled ? "1" : "0.4";
@@ -181,7 +202,7 @@
             explosionStart = performance.now();
         });
 
-        // Touch/Mouse handlers unchanged
+        // Touch/Mouse handlers (unchanged from previous stable version)
         function handleStart(e) {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
