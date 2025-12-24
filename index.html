@@ -1,479 +1,342 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mike McC</title>
-    <!-- Changed to a thin, elegant font: Montserrat with light weight + fallback to system sans-serif -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <title>Joy Division Sculpting + Smooth Explosion</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            height: 100vh;
-            display: flex;
-            background: #0f172a;
-            overflow: hidden;
-            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-            padding: 40px;
-            gap: 40px;
-        }
-
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            z-index: -2;
-            pointer-events: none;
-        }
-
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.7;
-            mix-blend-mode: screen;
-            animation: float linear infinite;
-            will-change: transform;
-            transform: translateZ(0);
-        }
-
-        .particle {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.8), 0 0 40px 12px currentColor;
-            animation: drift ease-in-out infinite, pulse 4s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            25% {
-                transform: translate(120px, -80px) scale(1.2);
-            }
-
-            50% {
-                transform: translate(-100px, 100px) scale(0.9);
-            }
-
-            75% {
-                transform: translate(80px, 120px) scale(1.15);
-            }
-
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-        }
-
-        @keyframes drift {
-            0%, 100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(var(--dx), var(--dy));
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 0.6;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .blob:nth-child(1) {
-            width: 1000px;
-            height: 1000px;
-            background: radial-gradient(circle, #ff6b6b, transparent);
-            top: -30%;
-            left: -20%;
-            animation-duration: 9s;
-            color: #ff6b6b;
-        }
-
-        .blob:nth-child(2) {
-            width: 1200px;
-            height: 1200px;
-            background: radial-gradient(circle, #4ecdc4, transparent);
-            bottom: -40%;
-            right: -25%;
-            animation-duration: 11s;
-            animation-delay: 1s;
-            color: #4ecdc4;
-        }
-
-        .blob:nth-child(3) {
-            width: 900px;
-            height: 900px;
-            background: radial-gradient(circle, #ffe66d, transparent);
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            animation-duration: 7s;
-            animation-delay: 2s;
-            color: #ffe66d;
-        }
-
-        .left-panel {
+            margin: 0;
+            background: #000;
+            color: #fff;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 30px;
-            z-index: 1;
-            min-width: 200px;
+            align-items: center;
+            font-family: sans-serif;
         }
 
-            /* Much thinner and elegant font */
-            .left-panel h1 {
-                font-size: 2rem;
-                font-weight: 300; /* Thin weight */
-                color: white;
-                letter-spacing: 8px; /* Increased spacing for sophisticated look */
-                text-transform: uppercase;
-            }
-
-        .menu-button {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-            .menu-button:hover {
-                background: rgba(255, 255, 255, 0.25);
-            }
-
-        .animation-container {
-            flex: 1;
-            position: relative;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        }
-
-        .animation-box {
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 24px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        .btn {
+            margin: 8px;
+            padding: 8px 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
             backdrop-filter: blur(8px);
-            position: relative;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, opacity 0.2s;
+            color: white;
+            font-size: 16px;
+            font-weight: 300;
+            width: 48px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        #animation-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            .btn:hover {
+                background: rgba(255,255,255,0.15);
+                transform: scale(1.05);
+            }
+
+            .btn:active {
+                transform: scale(0.95);
+            }
+
+        .active {
+            background: rgba(255,255,255,0.25) !important;
         }
 
-        @media (max-width: 1024px) {
-            body {
-                flex-direction: column;
-                padding: 20px;
-            }
-
-            .left-panel {
-                align-items: center;
-                margin-bottom: 30px;
-            }
-
-            .animation-container {
-                height: 60vh;
-            }
+        canvas {
+            background: #000;
+            display: block;
         }
     </style>
 </head>
+
 <body>
-    <div class="background">
-        <!-- blobs and particles unchanged -->
-        <div class="blob">
-            <div class="particle" style="top: 20%; left: 30%; --dx: 40px; --dy: -50px; animation-duration: 8s;"></div>
-            <div class="particle" style="top: 50%; left: 70%; --dx: -60px; --dy: 30px; animation-duration: 9s; animation-delay: 1s;"></div>
-            <div class="particle" style="top: 70%; left: 20%; --dx: 50px; --dy: -40px; animation-duration: 7s; animation-delay: 2s;"></div>
-            <div class="particle" style="top: 30%; left: 50%; --dx: -40px; --dy: 60px; animation-duration: 10s;"></div>
-            <div class="particle" style="top: 80%; left: 60%; --dx: 30px; --dy: -30px; animation-duration: 8s;"></div>
-        </div>
 
-        <div class="blob">
-            <div class="particle" style="top: 30%; left: 40%; --dx: 60px; --dy: -40px; animation-duration: 10s;"></div>
-            <div class="particle" style="top: 60%; left: 80%; --dx: -50px; --dy: 50px; animation-duration: 11s;"></div>
-            <div class="particle" style="top: 20%; left: 60%; --dx: 40px; --dy: -60px; animation-duration: 9s;"></div>
-            <div class="particle" style="top: 70%; left: 30%; --dx: -70px; --dy: 30px; animation-duration: 12s;"></div>
-        </div>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <button id="toggleBtn" class="btn">~</button>
+        <button id="plusBtn" class="btn">+</button>
+        <button id="minusBtn" class="btn">−</button>
 
-        <div class="blob">
-            <div class="particle" style="top: 25%; left: 50%; --dx: -40px; --dy: 50px; animation-duration: 7s;"></div>
-            <div class="particle" style="top: 55%; left: 30%; --dx: 60px; --dy: -30px; animation-duration: 8s;"></div>
-            <div class="particle" style="top: 75%; left: 70%; --dx: -50px; --dy: -40px; animation-duration: 6s;"></div>
-            <div class="particle" style="top: 35%; left: 60%; --dx: 40px; --dy: 60px; animation-duration: 7s;"></div>
-        </div>
+        <!-- RESET BUTTON NOW AN X -->
+        <button id="resetBtn" class="btn">x</button>
+
+        <!-- EXPLOSION BUTTON -->
+        <button id="explodeBtn" class="btn">!</button>
     </div>
 
-    <div class="left-panel">
-        <h1>MikeMcC</h1>
-        <button class="menu-button" onclick="addBall()">Add</button>
-        <button class="menu-button" onclick="explodeBall()">Explode</button>
-        <button class="menu-button" onclick="scrubBalls()">Scrub</button>
-    </div>
+    <canvas id="joyCanvas" width="900" height="600"></canvas>
 
-    <div class="animation-container">
-        <div class="animation-box">
-            <canvas id="animation-canvas"></canvas>
-        </div>
-    </div>
-
-    <!-- JavaScript remains exactly the same (shockwaves, chain explosions, particles, physics) -->
     <script>
-        // ... (all the previous JavaScript code unchanged - balls, explosions, shockwaves, etc.)
-        const canvas = document.getElementById('animation-canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById("joyCanvas");
+        const ctx = canvas.getContext("2d");
 
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+        const toggleBtn = document.getElementById("toggleBtn");
+        const plusBtn = document.getElementById("plusBtn");
+        const minusBtn = document.getElementById("minusBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const explodeBtn = document.getElementById("explodeBtn");
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        const lineCount = 80;
+        const pointsPerLine = 300;
+
+        const marginTop = 40;
+        const marginBottom = 40;
+        const marginLeft = 40;
+        const marginRight = 40;
+
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+
+        let mouseEnabled = true;
+        let mode = "add";
+
+        let isMouseDown = false;
+        let lastX = null;
+        let lastY = null;
+        const minDistance = 10;
+
+        const distortionField = [];
+        for (let y = 0; y < height; y++) {
+            distortionField[y] = new Float32Array(width);
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
-        const balls = [];
-        const explosions = [];
-        const shockwaves = [];
-        const pendingExplosions = [];
-        const radius = 12;
-        const speed = 3.5;
-        const explosionRadius = 5 * 2 * radius;
+        const radius = 25;
+        const strength = 0.5;
+        const radiusSq = radius * radius;
 
-        class Ball {
-            constructor(x, y, vx, vy) {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+        const MAX_DISTORTION = 0.5;
+
+        // Explosion animation state
+        let explosionStart = null;
+
+        function clamp(v, min, max) {
+            return v < min ? min : v > max ? max : v;
+        }
+
+        function applyGaussian(x0, y0, sign) {
+            const minX = Math.max(0, x0 - radius);
+            const maxX = Math.min(width - 1, x0 + radius);
+            const minY = Math.max(0, y0 - radius);
+            const maxY = Math.min(height - 1, y0 + radius);
+
+            for (let y = minY; y <= maxY; y++) {
+                for (let x = minX; x <= maxX; x++) {
+                    const dx = x - x0;
+                    const dy = y - y0;
+                    const distSq = dx * dx + dy * dy;
+
+                    if (distSq <= radiusSq) {
+                        const g = Math.exp(-distSq / (radiusSq * 0.5));
+                        distortionField[y][x] += sign * strength * g;
+                        distortionField[y][x] = clamp(distortionField[y][x], -MAX_DISTORTION, MAX_DISTORTION);
+                    }
+                }
             }
-            draw() {
+        }
+
+        plusBtn.addEventListener("click", () => {
+            mode = "add";
+            plusBtn.classList.add("active");
+            minusBtn.classList.remove("active");
+        });
+
+        minusBtn.addEventListener("click", () => {
+            mode = "subtract";
+            minusBtn.classList.add("active");
+            plusBtn.classList.remove("active");
+        });
+
+        plusBtn.classList.add("active");
+
+        toggleBtn.addEventListener("click", () => {
+            mouseEnabled = !mouseEnabled;
+            toggleBtn.style.opacity = mouseEnabled ? "1" : "0.4";
+        });
+
+        resetBtn.addEventListener("click", () => {
+            for (let y = 0; y < height; y++) {
+                distortionField[y].fill(0);
+            }
+        });
+
+        explodeBtn.addEventListener("click", () => {
+            explosionStart = performance.now();
+        });
+
+        canvas.addEventListener("mousedown", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor(e.clientX - rect.left);
+            const y = Math.floor(e.clientY - rect.top);
+
+            isMouseDown = true;
+            lastX = x;
+            lastY = y;
+
+            if (mode === "add") applyGaussian(x, y, +1);
+            else applyGaussian(x, y, -1);
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            isMouseDown = false;
+            lastX = null;
+            lastY = null;
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            if (!isMouseDown) return;
+
+            const x = Math.floor(mouseX);
+            const y = Math.floor(mouseY);
+
+            const dx = x - lastX;
+            const dy = y - lastY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist >= minDistance) {
+                if (mode === "add") applyGaussian(x, y, +1);
+                else applyGaussian(x, y, -1);
+
+                lastX = x;
+                lastY = y;
+            }
+        });
+
+        function smoothNoise(seed) {
+            const x = Math.sin(seed * 12.9898) * 43758.5453;
+            return x - Math.floor(x);
+        }
+
+        function interpolatedNoise(x) {
+            const x0 = Math.floor(x);
+            const x1 = x0 + 1;
+            const t = x - x0;
+            const n0 = smoothNoise(x0);
+            const n1 = smoothNoise(x1);
+            return n0 * (1 - t) + n1 * t;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, width, height);
+
+            const usableWidth = width - marginLeft - marginRight;
+            const usableHeight = height - marginTop - marginBottom;
+
+            for (let i = 0; i < lineCount; i++) {
+                const t = i / (lineCount - 1);
+                const yBase = marginTop + t * usableHeight;
+
+                const verticalDistortion = Math.sin(t * Math.PI) * 0.2;
+
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = this.color;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x - radius < 0 || this.x + radius > canvas.width) this.vx = -this.vx;
-                if (this.y - radius < 0 || this.y + radius > canvas.height) this.vy = -this.vy;
-            }
-        }
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 1.2;
 
-        class ExplosionParticle {
-            constructor(x, y, vx, vy, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.color = color;
-                this.life = 1;
-                this.decay = 0.015 + Math.random() * 0.01;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vx *= 0.98;
-                this.vy *= 0.98;
-                this.life -= this.decay;
-            }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 15 * this.life;
-                ctx.shadowColor = this.color;
-                ctx.fillRect(this.x - 3, this.y - 3, 6, 6);
-                ctx.globalAlpha = 1;
-                ctx.shadowBlur = 0;
-            }
-            dead() { return this.life <= 0; }
-        }
+                for (let j = 0; j < pointsPerLine; j++) {
+                    const xNorm = j / (pointsPerLine - 1);
+                    const x = marginLeft + xNorm * usableWidth;
 
-        class Shockwave {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.radius = 0;
-                this.maxRadius = explosionRadius + 20;
-                this.width = 8;
-                this.life = 1;
-            }
-            update() {
-                this.radius += 4;
-                this.life = 1 - (this.radius / this.maxRadius);
-            }
-            draw() {
-                ctx.globalAlpha = this.life * 0.6;
-                ctx.strokeStyle = this.color;
-                ctx.lineWidth = this.width * this.life;
-                ctx.shadowBlur = 20 * this.life;
-                ctx.shadowColor = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    const sideFalloff = Math.sin(xNorm * Math.PI);
+
+                    let wave =
+                        Math.sin(xNorm * 8 * Math.PI * 2) * 0.4 +
+                        Math.sin(xNorm * 18 * Math.PI * 2) * 0.2;
+
+                    const noise = interpolatedNoise(j * 0.3 + i * 5.1) - 0.5;
+
+                    let mouseInfluence = 0;
+                    if (mouseEnabled) {
+                        const dx = x - mouseX;
+                        const dy = yBase - mouseY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        mouseInfluence = Math.max(0, 1 - dist / 25) * 0.6;
+                    }
+
+                    const permanent = distortionField[Math.floor(yBase)][Math.floor(x)];
+
+                    // EXPLOSION WAVE (smooth 6s build → 2s full → 6s fade)
+                    let explosionWave = 0;
+
+                    if (explosionStart !== null) {
+                        const now = performance.now();
+                        const elapsed = now - explosionStart;
+                        const duration = 14000; // 14 seconds total
+
+                        if (elapsed >= duration) {
+                            explosionStart = null;
+                        } else {
+                            const tExp = elapsed / duration;
+
+                            const centerX = width / 2;
+                            const centerY = height / 2;
+
+                            const dx = x - centerX;
+                            const dy = yBase - centerY;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+
+                            const maxRadius = Math.sqrt(width * width + height * height) / 2;
+                            const waveRadius = tExp * maxRadius;
+
+                            // Envelope: 0–6s build, 6–8s full, 8–14s fade
+                            let envelope;
+                            if (tExp < 0.4286) envelope = tExp / 0.4286;      // 0–6s
+                            else if (tExp < 0.5714) envelope = 1;             // 6–8s
+                            else envelope = (1 - tExp) / 0.4286;              // 8–14s
+
+                            // Smooth oscillation
+                            const phase = dist - waveRadius;
+                            const frequency = 0.075;
+                            const amplitude = 1.2;
+
+                            const oscillation = Math.sin(phase * frequency);
+
+                            // Distance-squared falloff
+                            const distanceFalloff = 1 / (1 + dist * dist * 0.00005);
+
+                            explosionWave = oscillation * amplitude * envelope * distanceFalloff;
+                        }
+                    }
+
+                    const distortion = clamp(
+                        verticalDistortion * sideFalloff +
+                        mouseInfluence +
+                        permanent +
+                        explosionWave,
+                        -1.5,
+                        1.5
+                    );
+
+                    wave = wave * distortion + noise * distortion * 0.8;
+
+                    const maxDisplacement = 60;
+                    const yOffset = -wave * maxDisplacement;
+
+                    const y = yBase + yOffset;
+
+                    if (j === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+
                 ctx.stroke();
-                ctx.globalAlpha = 1;
-                ctx.shadowBlur = 0;
-            }
-            dead() { return this.radius > this.maxRadius; }
-        }
-
-        function createExplosion(x, y, color) {
-            const particleCount = 35;
-            for (let i = 0; i < particleCount; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const force = 5 + Math.random() * 10;
-                const vx = Math.cos(angle) * force;
-                const vy = Math.sin(angle) * force;
-                explosions.push(new ExplosionParticle(x, y, vx, vy, color));
-            }
-            shockwaves.push(new Shockwave(x, y, color));
-        }
-
-        function triggerExplosion(ballIndex) {
-            const ball = balls[ballIndex];
-            createExplosion(ball.x, ball.y, ball.color);
-            balls.splice(ballIndex, 1);
-
-            for (let i = balls.length - 1; i >= 0; i--) {
-                const other = balls[i];
-                const dist = Math.hypot(other.x - ball.x, other.y - ball.y);
-                if (dist < explosionRadius) {
-                    const delay = (dist / explosionRadius) * 600 + 100;
-                    pendingExplosions.push({ ballIndex: i, delay });
-                }
-            }
-        }
-
-        function addBall() {
-            const angle = Math.random() * Math.PI * 2;
-            const vx = Math.cos(angle) * speed;
-            const vy = Math.sin(angle) * speed;
-            balls.push(new Ball(canvas.width / 2, canvas.height / 2, vx, vy));
-        }
-
-        function explodeBall() {
-            if (balls.length === 0) return;
-            const index = Math.floor(Math.random() * balls.length);
-            triggerExplosion(index);
-        }
-
-        function scrubBalls() {
-            balls.length = 0;
-            explosions.length = 0;
-            shockwaves.length = 0;
-            pendingExplosions.length = 0;
-        }
-
-        function handleCollisions() {
-            for (let i = 0; i < balls.length; i++) {
-                for (let j = i + 1; j < balls.length; j++) {
-                    const dx = balls[j].x - balls[i].x;
-                    const dy = balls[j].y - balls[i].y;
-                    const dist = Math.hypot(dx, dy);
-                    if (dist < 2 * radius) {
-                        const angle = Math.atan2(dy, dx);
-                        const sin = Math.sin(angle);
-                        const cos = Math.cos(angle);
-
-                        const vx1 = balls[i].vx * cos + balls[i].vy * sin;
-                        const vy1 = balls[i].vy * cos - balls[i].vx * sin;
-                        const vx2 = balls[j].vx * cos + balls[j].vy * sin;
-                        const vy2 = balls[j].vy * cos - balls[j].vx * sin;
-
-                        [balls[i].vx, balls[j].vx] = [vx2 * cos - vy1 * sin, vx1 * cos - vy2 * sin];
-                        [balls[i].vy, balls[j].vy] = [vy1 * cos + vx2 * sin, vy2 * cos + vx1 * sin];
-
-                        const overlap = 2 * radius - dist;
-                        const sepX = (dx / dist) * overlap / 2;
-                        const sepY = (dy / dist) * overlap / 2;
-                        balls[i].x -= sepX;
-                        balls[i].y -= sepY;
-                        balls[j].x += sepX;
-                        balls[j].y += sepY;
-                    }
-                }
-            }
-        }
-
-        let lastTime = performance.now();
-        function animate(time) {
-            const delta = time - lastTime;
-            lastTime = time;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = pendingExplosions.length - 1; i >= 0; i--) {
-                pendingExplosions[i].delay -= delta;
-                if (pendingExplosions[i].delay <= 0) {
-                    const idx = pendingExplosions[i].ballIndex;
-                    if (idx < balls.length) {
-                        triggerExplosion(idx);
-                    }
-                    pendingExplosions.splice(i, 1);
-                }
             }
 
-            balls.forEach(ball => {
-                ball.update();
-                ball.draw();
-            });
-
-            for (let i = explosions.length - 1; i >= 0; i--) {
-                explosions[i].update();
-                explosions[i].draw();
-                if (explosions[i].dead()) explosions.splice(i, 1);
-            }
-
-            for (let i = shockwaves.length - 1; i >= 0; i--) {
-                shockwaves[i].update();
-                shockwaves[i].draw();
-                if (shockwaves[i].dead()) shockwaves.splice(i, 1);
-            }
-
-            handleCollisions();
-
-            requestAnimationFrame(animate);
+            requestAnimationFrame(draw);
         }
 
-        requestAnimationFrame(animate);
+        draw();
     </script>
+
 </body>
 </html>
