@@ -21,7 +21,7 @@
         .controls {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 40px;
             padding: 12px 0;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px);
@@ -65,15 +65,27 @@
         canvas {
             display: block;
             background: #000;
-            flex-grow: 1;
+            flex: 1 1 auto;
         }
 
-        /* Mobile: canvas takes exactly 50% of remaining height after controls */
-        @media (max-width: 768px) {
-            .canvas-container {
-                flex-grow: 0;
-                height: calc(50vh - 40px); /* approximate half screen minus controls */
-                max-height: 50vh;
+        /* Base: mobile portrait – exactly 80% of viewport height */
+        @media (max-width: 767px) and (orientation: portrait) {
+            canvas {
+                height: 80vh;
+            }
+        }
+
+        /* Tablet portrait & mobile landscape – generous but leaves room for controls */
+        @media (max-width: 1024px) and (orientation: portrait), (max-width: 1024px) and (orientation: landscape) and (max-height: 767px) {
+            canvas {
+                height: calc(100vh - 72px); /* controls ~72px */
+            }
+        }
+
+        /* Tablet landscape & desktop – almost full screen */
+        @media (min-width: 768px) and (orientation: landscape), (min-width: 1025px) {
+            canvas {
+                height: calc(100vh - 72px);
             }
         }
     </style>
@@ -81,22 +93,18 @@
 <body>
 
     <div class="controls">
-        <button id="toggleBtn" class="btn">~</button>
-        <button id="plusBtn" class="btn active">+</button>
+        <button id="distortBtn" class="btn active">~</button>
         <button id="resetBtn" class="btn">×</button>
         <button id="explodeBtn" class="btn">!</button>
     </div>
 
-    <div class="canvas-container">
-        <canvas id="joyCanvas"></canvas>
-    </div>
+    <canvas id="joyCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById("joyCanvas");
         const ctx = canvas.getContext("2d");
 
-        const toggleBtn = document.getElementById("toggleBtn");
-        const plusBtn = document.getElementById("plusBtn");
+        const distortBtn = document.getElementById("distortBtn");
         const resetBtn = document.getElementById("resetBtn");
         const explodeBtn = document.getElementById("explodeBtn");
 
@@ -113,7 +121,7 @@
         let mouseX = 0;
         let mouseY = 0;
 
-        let mouseEnabled = true;
+        let distortModeEnabled = true;
 
         let isMouseDown = false;
         let lastX = null;
@@ -159,17 +167,9 @@
 
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
-            const controlsHeight = document.querySelector('.controls').offsetHeight;
 
             width = window.innerWidth;
-            let availableHeight = window.innerHeight - controlsHeight;
-
-            // On mobile: limit canvas to half screen height
-            if (window.innerWidth <= 768) {
-                availableHeight = Math.min(availableHeight, window.innerHeight / 2);
-            }
-
-            height = availableHeight;
+            height = canvas.offsetHeight;
 
             canvas.width = width * dpr;
             canvas.height = height * dpr;
@@ -186,12 +186,12 @@
         }
 
         window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', resizeCanvas);
         resizeCanvas();
 
-        // Rest of your event listeners and functions remain unchanged
-        toggleBtn.addEventListener("click", () => {
-            mouseEnabled = !mouseEnabled;
-            toggleBtn.style.opacity = mouseEnabled ? "1" : "0.4";
+        distortBtn.addEventListener("click", () => {
+            distortModeEnabled = !distortModeEnabled;
+            distortBtn.classList.toggle("active", distortModeEnabled);
         });
 
         resetBtn.addEventListener("click", () => {
@@ -202,7 +202,6 @@
             explosionStart = performance.now();
         });
 
-        // Touch/Mouse handlers (unchanged from previous stable version)
         function handleStart(e) {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
@@ -214,7 +213,9 @@
             lastX = x;
             lastY = y;
 
-            applyGaussian(x, y);
+            if (distortModeEnabled) {
+                applyGaussian(x, y);
+            }
         }
 
         function handleMove(e) {
@@ -224,7 +225,7 @@
             mouseX = touch.clientX - rect.left;
             mouseY = touch.clientY - rect.top;
 
-            if (!isMouseDown) return;
+            if (!distortModeEnabled || !isMouseDown) return;
 
             const x = mouseX;
             const y = mouseY;
@@ -253,18 +254,38 @@
         canvas.addEventListener("touchmove", handleMove, { passive: false });
         canvas.addEventListener("touchend", handleEnd);
 
-        function smoothNoise(seed) {
-            const x = Math.sin(seed * 12.9898) * 43758.5453;
-            return x - Math.floor(x);
+        function hash11(p) {
+            let n = p * 127.1 + p * 269.5;
+            n = Math.sin(n) * 43758.5453;
+            return n - Math.floor(n);
         }
 
-        function interpolatedNoise(x) {
-            const x0 = Math.floor(x);
-            const x1 = x0 + 1;
-            const t = x - x0;
-            const n0 = smoothNoise(x0);
-            const n1 = smoothNoise(x1);
-            return n0 * (1 - t) + n1 * t;
+        function perlinNoise(x) {
+            const i = Math.floor(x);
+            const f = x - i;
+            const a = hash11(i);
+            const b = hash11(i + 1);
+            const u = f * f * (3 - 2 * f);
+            return a * (1 - u) + b * u;
+        }
+
+        function fbm(x, y) {
+            let total = 0;
+            let amp = 0.5;
+            let freq = 0.04;
+
+            total += perlinNoise(x * freq + y * 0.37 + 12.34) * amp;
+            freq *= 2.13; amp *= 0.5;
+
+            total += perlinNoise(x * freq * 1.1 - y * 0.61 + 56.78) * amp;
+            freq *= 2.37; amp *= 0.5;
+
+            total += perlinNoise(x * freq + y * 1.23 + 90.12) * amp;
+            freq *= 2.81; amp *= 0.5;
+
+            total += perlinNoise(x * freq * 0.9 + y * 0.83 + 345.67) * amp;
+
+            return total;
         }
 
         function draw() {
@@ -274,9 +295,8 @@
 
             const usableWidth = width - marginLeft - marginRight;
             const usableHeight = height - marginTop - marginBottom;
-            const maxDisplacement = Math.min(100, height * 0.15);
+            const maxDisplacement = Math.min(320, height * 0.48);
 
-            // Precompute all line Y positions for depth clipping
             const lineYs = new Array(lineCount);
             for (let i = 0; i < lineCount; i++) {
                 lineYs[i] = new Float32Array(pointsPerLine);
@@ -298,7 +318,6 @@
                 }
             }
 
-            // First pass: compute all Y positions
             for (let i = 0; i < lineCount; i++) {
                 const t = i / (lineCount - 1);
                 const yBase = marginTop + t * usableHeight;
@@ -309,14 +328,15 @@
                     const x = marginLeft + xNorm * usableWidth;
                     const sideFalloff = Math.sin(xNorm * Math.PI);
 
-                    let wave =
-                        Math.sin(xNorm * 8 * Math.PI * 2) * 0.6 +
-                        Math.sin(xNorm * 18 * Math.PI * 2) * 0.3;
+                    let wave = Math.sin(xNorm * 10 * Math.PI) * 0.1;
 
-                    const noise = (interpolatedNoise(j * 0.3 + i * 5.1) - 0.5) * 1.2;
+                    const noiseInputX = j * 0.8;
+                    const noiseInputY = i * 7.3;
+                    const rawNoise = fbm(noiseInputX, noiseInputY);
+                    const noiseVal = (rawNoise - 0.5) * 2.4;
 
                     let mouseInfluence = 0;
-                    if (mouseEnabled) {
+                    if (distortModeEnabled) {
                         const dist = Math.hypot(x - mouseX, yBase - mouseY);
                         mouseInfluence = Math.max(0, 1 - dist / 30) * 0.6;
                     }
@@ -353,7 +373,7 @@
                         1.5
                     );
 
-                    wave = (wave + noise * 0.8) * flattenFactor + noise * 0.2 * flattenFactor;
+                    wave = (wave + noiseVal) * flattenFactor;
                     wave = wave * distortion;
 
                     const yOffset = -wave * maxDisplacement;
@@ -361,13 +381,11 @@
                 }
             }
 
-            // Second pass: draw from back to front with clipping
-            for (let i = lineCount - 1; i >= 0; i--) { // draw back lines first
+            for (let i = lineCount - 1; i >= 0; i--) {
                 const t = i / (lineCount - 1);
                 const yBase = marginTop + t * usableHeight;
 
                 ctx.beginPath();
-
                 let started = false;
 
                 for (let j = 0; j < pointsPerLine; j++) {
@@ -375,9 +393,8 @@
                     const x = marginLeft + xNorm * usableWidth;
                     const y = lineYs[i][j];
 
-                    // Check if this point is hidden by any lower (front) line
                     let hidden = false;
-                    for (let k = i + 1; k < lineCount; k++) { // check lines below (in front)
+                    for (let k = i + 1; k < lineCount; k++) {
                         if (lineYs[k][j] < y) {
                             hidden = true;
                             break;
@@ -392,7 +409,6 @@
                             ctx.lineTo(x, y);
                         }
                     } else if (started) {
-                        // End current segment if hidden
                         ctx.stroke();
                         ctx.beginPath();
                         started = false;
@@ -401,10 +417,9 @@
 
                 if (started) ctx.stroke();
 
-                // Glow on visible peaks
                 let maxPeak = 0;
                 for (let j = 0; j < pointsPerLine; j++) {
-                    const waveY = yBase - lineYs[i][j]; // positive when peak is up
+                    const waveY = yBase - lineYs[i][j];
                     maxPeak = Math.max(maxPeak, waveY / maxDisplacement);
                 }
 
