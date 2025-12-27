@@ -65,27 +65,19 @@
         canvas {
             display: block;
             background: #000;
-            flex: 1 1 auto;
         }
 
-        /* Base: mobile portrait – exactly 80% of viewport height */
-        @media (max-width: 767px) and (orientation: portrait) {
+        /* Mobile devices (width ≤ 767px): 2/3 of screen height */
+        @media (max-width: 767px) {
             canvas {
-                height: 80vh;
+                height: calc(100vh / 3 * 2); /* exactly 2/3 of viewport height */
             }
         }
 
-        /* Tablet portrait & mobile landscape – generous but leaves room for controls */
-        @media (max-width: 1024px) and (orientation: portrait), (max-width: 1024px) and (orientation: landscape) and (max-height: 767px) {
+        /* Tablets & Desktops: almost full screen (minus controls) */
+        @media (min-width: 768px) {
             canvas {
-                height: calc(100vh - 72px); /* controls ~72px */
-            }
-        }
-
-        /* Tablet landscape & desktop – almost full screen */
-        @media (min-width: 768px) and (orientation: landscape), (min-width: 1025px) {
-            canvas {
-                height: calc(100vh - 72px);
+                height: calc(100vh - 72px); /* ~72px for controls */
             }
         }
     </style>
@@ -93,7 +85,7 @@
 <body>
 
     <div class="controls">
-        <button id="distortBtn" class="btn active">~</button>
+        <button id="distortBtn" class="btn">~</button>
         <button id="resetBtn" class="btn">×</button>
         <button id="explodeBtn" class="btn">!</button>
     </div>
@@ -121,7 +113,8 @@
         let mouseX = 0;
         let mouseY = 0;
 
-        let distortModeEnabled = true;
+        // Distort mode now defaults to OFF
+        let distortModeEnabled = false;
 
         let isMouseDown = false;
         let lastX = null;
@@ -189,6 +182,7 @@
         window.addEventListener('orientationchange', resizeCanvas);
         resizeCanvas();
 
+        // Toggle starts OFF – button not highlighted
         distortBtn.addEventListener("click", () => {
             distortModeEnabled = !distortModeEnabled;
             distortBtn.classList.toggle("active", distortModeEnabled);
